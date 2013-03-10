@@ -19,8 +19,7 @@ f = open(filename,'w')
 url = 'http://news.ycombinator.com/news'
 r = requests.get(url)
 if r.status_code == 200:
-    print r.content
-
+    #print r.content
     f.write(r.content)
     f.close()
 else:
@@ -35,7 +34,7 @@ for row in soup.find_all('tr')[2:]:
     if len(row.find_all('td')) == 3:
         cells = row.find_all('td')
         info_row = row.next_sibling
-        print row.text, info_row.text
+        #print row.text, info_row.text
 
         order = cells[0].text
         link_data = cells[2]
@@ -59,7 +58,7 @@ for row in soup.find_all('tr')[2:]:
         summary.append(data)
 f.close()
 
-print json.dumps(summary, indent=2)
+#print json.dumps(summary, indent=2)
 
 o = open(filename_js,'w')
 o.write(json.dumps(summary, indent=2))
