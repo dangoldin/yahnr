@@ -118,8 +118,9 @@ def upload(now):
             print 'Y'
             k = Key(bucket)
             k.key = 'data/' + fn
-            k.set_metadata('Cache-Control', 'max-age=604800')
-            k.set_metadata('Expires', (datetime.now() + timedelta(days=7300)).strftime("%a, %d %b %Y %H:%M:%S GMT"))
+            if fn is not 'now.json':
+                k.set_metadata('Cache-Control', 'max-age=604800')
+                k.set_metadata('Expires', (datetime.now() + timedelta(days=7300)).strftime("%a, %d %b %Y %H:%M:%S GMT"))
             k.set_contents_from_filename(fp)
             k.set_acl('public-read')
         else:
@@ -136,8 +137,9 @@ def deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'j
                 print 'Uploading', fn
                 k = Key(bucket)
                 k.key = d + '/' + fn if d is not '.' else fn
-                k.set_metadata('Cache-Control', 'max-age=604800')
-                k.set_metadata('Expires', (datetime.now() + timedelta(days=7300)).strftime("%a, %d %b %Y %H:%M:%S GMT"))
+                if fn is not 'now.json':
+                    k.set_metadata('Cache-Control', 'max-age=604800')
+                    k.set_metadata('Expires', (datetime.now() + timedelta(days=7300)).strftime("%a, %d %b %Y %H:%M:%S GMT"))
                 k.set_contents_from_filename(os.path.join(d,fn))
                 k.set_acl('public-read')
 

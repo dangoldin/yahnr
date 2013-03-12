@@ -1,0 +1,11 @@
+.navbar-inverse .navbar-inner {
+    background: #ff620e;
+}
+
+.navbar-inverse .brand, .navbar-inverse .nav > li > a {
+    color: #eee;
+}
+
+.content {
+    padding-top: 10px;
+}

@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <title>About | YAHNR</title>
+    <link href="./css/bootstrap.css" rel="stylesheet">
+    <link href="./css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <div class="row">
+            <div class="span8">
+              <a class="brand" href="./index.html">YAHNR</a>
+              <div class="nav-collapse collapse">
+                <ul class="nav">
+                  <li class="">
+                    <a href="./about.html">About</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="container">
+        <div class="row">
+          <div class="span12">
+            <h2>What is this?</h2>
+            <p>Pretty simple. Every 15 minutes, YAHNR scrapes Hacker News and generates a new page containing the top stories from the past 24 hours sorted in descending order by points.<p>
+
+            <hr/>
+            <h2>Why man, why?</h2>
+            <ul>
+              <li>Since I sleep I figure I'll miss some good posts during the night and would like to see them.</li>
+              <li>Curiosity. I read the <a href="http://blog.apps.npr.org/2013/02/14/app-template-redux.html" target="_blank">NPR news app blog post</a> on their tech setup and was impressed. Since pretty much everything I do is dynamic, I wanted to play around with this approach and see how it went.</li>
+            </ul>
+
+            <hr/>
+            <h2>How'd you do it?</h2>
+            <p>Pretty simple! The code's up on <a href="https://github.com/dangoldin/yahnr" target="_blank">GitHub</a>.</p>
+            <ol>
+              <li>Wrote a script that scrapes the front page of HN and dumps the structured data into a JSON file.</li>
+              <li>Combine the past 24 hours of JSON files into one big JSON file</li>
+              <li>Upload the JSON files to S3</li>
+              <li>Use some simple HTML/JS to parse the JSON file and generate the sorted table.</li>
+            </ol>
+
+            <hr/>
+            <h2>So it's all great!</h2>
+            <p>Not really!</p>
+            <ul>
+              <li>There's overlap between days for items that were on the front page for more than 24 hours.</li>
+              <li>I should probably normalize point values by time of day since some hours just may have higher average point volume.</li>
+              <li>I'm not happy with the bigass JSON file. At the same time I don't want to make a 96 asynscronous calls to get the other JSON files.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-39207865-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  </body>
+</html>
