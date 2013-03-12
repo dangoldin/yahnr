@@ -11,7 +11,7 @@ from boto.s3.key import Key
 
 import config
 
-# python get_data.py --get --process --combine --upload
+# python yahnr.py --get --process --combine --upload
 
 # Set up Regexes
 RE_NUM = re.compile(r'\d+')
@@ -65,7 +65,7 @@ def process(infile, outfile):
                     'points': int(RE_NUM.search(points).group(0)) if 'point' in points else 0,
                     'user'  : user,
                     'num_comments' : int(RE_NUM.search(num_comments).group(0)) if 'comments' in num_comments else 0,
-                    'thread_id' : RE_NUM.search(thread_id).group(0) if 'thread' in thread_id else '',
+                    'thread_id' : RE_NUM.search(thread_id).group(0) if 'item' in thread_id else '',
                     'type' : thread_type,
                     }
             summary.append(data)
@@ -84,13 +84,16 @@ def combine(now):
     current_data = []
     datetime_cnt = recent_24
     while datetime_cnt <= now:
-        print 'Processing data for %s' % datetime_cnt.strftime('%Y-%m-%d-%H-%M')
+        print 'Processing data for %s?' % datetime_cnt.strftime('%Y-%m-%d-%H-%M'),
         fn = 'hn-data-%s.json' % datetime_cnt.strftime('%Y-%m-%d-%H-%M')
         fp = os.path.join('data', fn)
         if os.path.exists(fp):
+            print 'Y'
             f = open( fp, 'r')
             current_data.extend(json.loads(f.read()))
             f.close()
+        else:
+            print 'N'
         datetime_cnt += timedelta(minutes=15)
 
     print 'Got %d rows' % len(current_data)
@@ -175,4 +178,4 @@ if __name__ == '__main__':
 
     if options.deploy:
         print 'Deploying to S3'
-        deploy(dirs = ['.','js','css','img', 'data'], exts = ['html', 'js', 'css', 'png', 'json'])
+        deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'json'])
