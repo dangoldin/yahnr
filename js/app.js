@@ -39,6 +39,11 @@ $(document).ready(function(){
 
     $.each(json, function(idx, row) {
       if (row.thread_id) {
+        // If this is a link to an HN page
+        if (row.url.indexOf('http') == -1) {
+          row.url = 'https://news.ycombinator.com/' + row.url;
+        }
+
         if(row.thread_id in all_data) {
           row.points = parseInt(row.points,10);
           row.num_comments = parseInt(row.num_comments,10);

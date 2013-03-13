@@ -138,8 +138,8 @@ def deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'j
                 k = Key(bucket)
                 k.key = d + '/' + fn if d is not '.' else fn
                 if fn is not 'now.json':
-                    k.set_metadata('Cache-Control', 'max-age=604800')
-                    k.set_metadata('Expires', (datetime.now() + timedelta(days=7300)).strftime("%a, %d %b %Y %H:%M:%S GMT"))
+                    k.set_metadata('Cache-Control', 'max-age=21600')
+                    k.set_metadata('Expires', (datetime.now() + timedelta(hour=6)).strftime("%a, %d %b %Y %H:%M:%S GMT"))
                 k.set_contents_from_filename(os.path.join(d,fn))
                 k.set_acl('public-read')
 
