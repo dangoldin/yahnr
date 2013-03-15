@@ -26,7 +26,7 @@ $(document).ready(function(){
   var template_row = Mustache.compile(" \
     <tr> \
       <td>{{ idx }}</td> \
-      <td><a href=\"{{ url }}\" target=\"_blank\">{{ title }}</a></td> \
+      <td><a href=\"{{ url }}\" target=\"_blank\">{{ title }} <small>({{ domain }})</small></a></td> \
       <td><a href=\"http://news.ycombinator.com/user?id={{ user }}\" target=\"_blank\">{{ user }}</a></td> \
       <td><a href=\"http://news.ycombinator.com/item?id={{ thread_id }}\" target=\"_blank\">{{ num_comments }}</a></td> \
       <td>{{ points }}</td> \
