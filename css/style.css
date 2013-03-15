@@ -9,3 +9,7 @@
 .content {
     padding-top: 10px;
 }
+
+a:visited {
+    color: #005580;
+}

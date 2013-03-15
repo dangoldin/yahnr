@@ -5,6 +5,7 @@ import re
 import os
 import shutil
 from datetime import datetime, timedelta
+import time
 from bs4 import BeautifulSoup
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
@@ -12,9 +13,11 @@ from boto.s3.key import Key
 import config
 
 # python yahnr.py --get --process --combine --upload
+# python yahnr.py --process --combine --upload
 
 # Set up Regexes
 RE_NUM = re.compile(r'\d+')
+RE_TIME_AGO = re.compile(r'\d+\s\w+?\sago')
 
 def getS3Bucket():
     conn = S3Connection(config.AWS_ACCESS_KEY_ID, config.AWS_SECRET_ACCESS_KEY)
@@ -40,6 +43,10 @@ def process(infile, outfile):
     f = open(infile,'r')
     soup = BeautifulSoup(f.read())
     summary = []
+
+    now = time.time()
+    print 'Current epoch time: %d' % int(now)
+
     for row in soup.find_all('tr')[2:]:
         if len(row.find_all('td')) == 3:
             cells = row.find_all('td')
@@ -55,6 +62,18 @@ def process(infile, outfile):
             user = info_row.find('a').text if info_row.find('a') else ''
             num_comments = info_row.find_all('a')[1].text if len(info_row.find_all('a')) > 1 else ''
             thread_id = info_row.find_all('a')[1]['href'] if len(info_row.find_all('a')) > 1 else ''
+            time_ago_str = RE_TIME_AGO.search(info_row.text).group(0)
+
+            num, time_type, other = time_ago_str.split(' ')
+            if 'minute' in time_type:
+                posted = now - int(num) * 60
+            elif 'hour' in time_type:
+                posted = now - int(num) * 60 * 60
+            elif 'day' in time_type:
+                posted = now - int(num) * 60 * 60 * 24
+            else:
+                print 'Error processing time ago string: %s' % time_ago_str
+                exit()
 
             thread_type = 'Jobs' if thread_id == '' else 'Other'
 
@@ -67,6 +86,7 @@ def process(infile, outfile):
                     'num_comments' : int(RE_NUM.search(num_comments).group(0)) if 'comments' in num_comments else 0,
                     'thread_id' : RE_NUM.search(thread_id).group(0) if 'item' in thread_id else '',
                     'type' : thread_type,
+                    'posted_time' : int(posted),
                     }
             summary.append(data)
     f.close()
