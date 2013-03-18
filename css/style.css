@@ -13,3 +13,32 @@
 a:visited {
     color: #005580;
 }
+
+@media screen and (max-width: 740px){
+    .table th, .table td {
+        line-height: 16px;
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 640px){
+    .table th, .table td {
+        line-height: 16px;
+        font-size: 14px;
+    }
+
+    tr > td:first-child,
+    tr > th:first-child {
+        display:none;
+    }
+
+    tr > td:first-child + td + td,
+    tr > th:first-child + th + th {
+        display:none;
+    }
+
+    tr > td:first-child + td + td + td + td + td,
+    tr > th:first-child + th + th + th + th + th {
+        display:none;
+    }
+}

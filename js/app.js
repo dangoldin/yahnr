@@ -14,7 +14,7 @@ $(document).ready(function(){
   }
 
   var date = getURLParameter('date');
-  console.log('Date: ' + date);
+  // console.log('Date: ' + date);
 
   var filename = '';
   if (date != 'null') {
@@ -45,7 +45,7 @@ $(document).ready(function(){
           row.url = 'https://news.ycombinator.com/' + row.url;
         }
 
-        console.log(row);
+        // console.log(row);
 
         if(row.thread_id in all_data) {
           row.points = parseInt(row.points,10);
