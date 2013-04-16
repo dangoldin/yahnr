@@ -9,11 +9,14 @@ import time
 from bs4 import BeautifulSoup
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+from boto.utils import parse_ts
+
 
 import config
 
 # python yahnr.py --get --process --combine --upload
 # python yahnr.py --process --combine --upload
+# python yahnr.py --deploy
 
 # Set up Regexes
 RE_NUM = re.compile(r'\d+')
@@ -163,6 +166,19 @@ def deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'j
                 k.set_contents_from_filename(os.path.join(d,fn))
                 k.set_acl('public-read')
 
+# Remove old data
+def clean(now):
+    remove_datetime = now - timedelta(hours=24)
+    bucket = getS3Bucket()
+    for key in bucket.list():
+        key_name = key.name.encode('utf-8')
+        key_datetime = parse_ts(key.last_modified)
+        if 'data' in key_name and len(key_name) == 34 and key_datetime < remove_datetime:
+            print key_name, 'Remove'
+            bucket.delete_key(key_name)
+        else:
+            print key_name, 'Skipping'
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-a", "--all", action="store_true", dest="all", default=None, help="Run the entire script")
@@ -171,6 +187,7 @@ if __name__ == '__main__':
     parser.add_option("-c", "--combine", action="store_true", dest="combine", default=None, help="Combine recent data files")
     parser.add_option("-u", "--upload", action="store_true", dest="upload", default=None, help="Upload the recent data files")
     parser.add_option("-d", "--deploy", action="store_true", dest="deploy", default=None, help="Deploy the server")
+    parser.add_option("-l", "--clean", action="store_true", dest="clean", default=None, help="Clean S3")
     (options, args) = parser.parse_args()
 
     if options.all:
@@ -201,3 +218,7 @@ if __name__ == '__main__':
     if options.deploy:
         print 'Deploying to S3'
         deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'json'])
+
+    if options.clean:
+        print 'Cleaning S3'
+        clean(now_15)
