@@ -11,7 +11,6 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from boto.utils import parse_ts
 
-
 import config
 
 # python yahnr.py --get --process --combine --upload
@@ -166,8 +165,8 @@ def deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'j
                 k.set_contents_from_filename(os.path.join(d,fn))
                 k.set_acl('public-read')
 
-# Remove old data
-def clean(now):
+# Remove old data S3
+def clean_s3(now):
     remove_datetime = now - timedelta(hours=24)
     bucket = getS3Bucket()
     for key in bucket.list():
@@ -179,6 +178,18 @@ def clean(now):
         else:
             print key_name, 'Skipping'
 
+# Remove old data local
+def clean_local(now):
+    remove_datetime = now - timedelta(hours=24)
+    files = os.listdir('data')
+    for f in files:
+        if '.html' in f or '.json' in f:
+            fp = os.path.join('data', f)
+            make_time = datetime.fromtimestamp(os.path.getmtime(fp))
+            if make_time < remove_datetime:
+                print "Deleting ", fp
+                os.remove( fp )
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-a", "--all", action="store_true", dest="all", default=None, help="Run the entire script")
@@ -187,7 +198,8 @@ if __name__ == '__main__':
     parser.add_option("-c", "--combine", action="store_true", dest="combine", default=None, help="Combine recent data files")
     parser.add_option("-u", "--upload", action="store_true", dest="upload", default=None, help="Upload the recent data files")
     parser.add_option("-d", "--deploy", action="store_true", dest="deploy", default=None, help="Deploy the server")
-    parser.add_option("-l", "--clean", action="store_true", dest="clean", default=None, help="Clean S3")
+    parser.add_option("-s", "--cleans3", action="store_true", dest="cleans3", default=None, help="Clean S3")
+    parser.add_option("-l", "--cleanlocal", action="store_true", dest="cleanlocal", default=None, help="Clean Local")
     (options, args) = parser.parse_args()
 
     if options.all:
@@ -219,6 +231,10 @@ if __name__ == '__main__':
         print 'Deploying to S3'
         deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'json'])
 
-    if options.clean:
+    if options.cleans3:
         print 'Cleaning S3'
-        clean(now_15)
+        clean_s3(now_15)
+
+    if options.cleanlocal:
+        print 'Cleaning Local'
+        clean_local(now_15)
