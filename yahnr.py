@@ -55,15 +55,18 @@ def process(infile, outfile):
             info_row = row.next_sibling
             # print row.text, info_row.text
 
+            # First row
             order = cells[0].text
             link_data = cells[2]
             title = cells[2].find('a').text
             url = cells[2].find('a')['href']
             domain = cells[2].find('span').text if cells[2].find('span') else ''
+
+            # Second row
             points = info_row.find('span').text if info_row.find('span') else ''
             user = info_row.find('a').text if info_row.find('a') else ''
-            num_comments = info_row.find_all('a')[1].text if len(info_row.find_all('a')) > 1 else ''
-            thread_id = info_row.find_all('a')[1]['href'] if len(info_row.find_all('a')) > 1 else ''
+            num_comments = info_row.find_all('a')[-1].text if 'comment' in info_row.find_all('a')[-1].text else ''
+            thread_id = info_row.find_all('a')[-1]['href'] if 'comment' in info_row.find_all('a')[-1].text else ''
             time_ago_str = RE_TIME_AGO.search(info_row.text).group(0)
 
             num, time_type, other = time_ago_str.split(' ')
