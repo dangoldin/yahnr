@@ -7,7 +7,7 @@ import shutil
 from datetime import datetime, timedelta
 import time
 from bs4 import BeautifulSoup
-from boto.s3.connection import S3Connection
+from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 from boto.s3.key import Key
 from boto.utils import parse_ts
 
@@ -22,7 +22,7 @@ RE_NUM = re.compile(r'\d+')
 RE_TIME_AGO = re.compile(r'\d+\s\w+?\sago')
 
 def getS3Bucket():
-    conn = S3Connection(config.AWS_ACCESS_KEY_ID, config.AWS_SECRET_ACCESS_KEY)
+    conn = S3Connection(config.AWS_ACCESS_KEY_ID, config.AWS_SECRET_ACCESS_KEY, calling_format=OrdinaryCallingFormat())
     bucket = conn.create_bucket(config.AWS_STORAGE_BUCKET_NAME)
     bucket.set_acl('public-read')
     return bucket
