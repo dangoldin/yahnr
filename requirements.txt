@@ -5,7 +5,7 @@ boto==2.49.0
 certifi==2019.9.11
 cffi==1.12.3
 chardet==3.0.4
-cryptography==3.2
+cryptography==3.3.2
 enum34==1.1.6
 fabric==2.5.0
 idna==2.8
