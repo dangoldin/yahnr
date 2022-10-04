@@ -29,7 +29,7 @@ def getS3Bucket():
 
 # Download the first page of HN
 def get(filename):
-    f = open(filename,'w')
+    f = open(filename,'wb')
 
     url = 'http://news.ycombinator.com/news'
     r = requests.get(url)
@@ -37,7 +37,7 @@ def get(filename):
         f.write(r.content)
         f.close()
     else:
-        print "Could not get HN feed"
+        print("Could not get HN feed")
         exit()
 
 # Extract info from the HTML
@@ -47,7 +47,7 @@ def process(infile, outfile):
     summary = []
 
     now = time.time()
-    print 'Current epoch time: %d' % int(now)
+    print('Current epoch time: %d' % int(now))
 
     for row in soup.find_all('tr')[2:]:
         if len(row.find_all('td')) == 3:
@@ -77,7 +77,7 @@ def process(infile, outfile):
             elif 'day' in time_type:
                 posted = now - int(num) * 60 * 60 * 24
             else:
-                print 'Error processing time ago string: %s' % time_ago_str
+                print('Error processing time ago string: %s' % time_ago_str)
                 exit()
 
             thread_type = 'Jobs' if thread_id == '' else 'Other'
@@ -96,7 +96,7 @@ def process(infile, outfile):
             summary.append(data)
     f.close()
 
-    print json.dumps(summary, indent=2)
+    print(json.dumps(summary, indent=2))
 
     o = open(outfile,'w')
     o.write(json.dumps(summary, indent=2))
@@ -109,19 +109,19 @@ def combine(now):
     current_data = []
     datetime_cnt = recent_24
     while datetime_cnt <= now:
-        print 'Processing data for %s?' % datetime_cnt.strftime('%Y-%m-%d-%H-%M'),
+        print('Processing data for %s?' % datetime_cnt.strftime('%Y-%m-%d-%H-%M'),)
         fn = 'hn-data-%s.json' % datetime_cnt.strftime('%Y-%m-%d-%H-%M')
         fp = os.path.join('data', fn)
         if os.path.exists(fp):
-            print 'Y'
+            print('Y')
             f = open( fp, 'r')
             current_data.extend(json.loads(f.read()))
             f.close()
         else:
-            print 'N'
+            print('N')
         datetime_cnt += timedelta(minutes=15)
 
-    print 'Got %d rows' % len(current_data)
+    print('Got %d rows' % len(current_data))
 
     f = open(os.path.join('data', 'now.json'),'w')
     f.write(json.dumps(current_data,indent=2))
@@ -137,10 +137,10 @@ def upload(now):
     bucket = getS3Bucket()
     files = ['now.json', 'hn-data-%s.json' % now.strftime('%Y-%m-%d-%H-%M'), 'hn-data-%s.json' % now.strftime('%Y-%m-%d')]
     for fn in files:
-        print 'Uploading %s?' % fn,
+        print('Uploading %s?' % fn,)
         fp = os.path.join('data',fn)
         if os.path.exists(fp):
-            print 'Y'
+            print('Y')
             k = Key(bucket)
             k.key = 'data/' + fn
             if fn is not 'now.json':
@@ -149,7 +149,7 @@ def upload(now):
             k.set_contents_from_filename(fp)
             k.set_acl('public-read')
         else:
-            print 'N'
+            print('N')
 
 # Deploy the web server to the static S3 site
 def deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'json']):
@@ -159,7 +159,7 @@ def deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'j
     for d in upload_dirs:
         for fn in os.listdir(d):
             if not os.path.isdir(os.path.join(d,fn)) and fn.split('.')[-1] in upload_ext:
-                print 'Uploading', fn
+                print('Uploading', fn)
                 k = Key(bucket)
                 k.key = d + '/' + fn if d is not '.' else fn
                 if fn is not 'now.json':
@@ -176,10 +176,10 @@ def clean_s3(now):
         key_name = key.name.encode('utf-8')
         key_datetime = parse_ts(key.last_modified)
         if 'data' in key_name and len(key_name) == 34 and key_datetime < remove_datetime:
-            print key_name, 'Remove'
+            print(key_name, 'Remove')
             bucket.delete_key(key_name)
         else:
-            print key_name, 'Skipping'
+            print(key_name, 'Skipping')
 
 # Remove old data local
 def clean_local(now):
@@ -190,7 +190,7 @@ def clean_local(now):
             fp = os.path.join('data', f)
             make_time = datetime.fromtimestamp(os.path.getmtime(fp))
             if make_time < remove_datetime:
-                print "Deleting ", fp
+                print("Deleting ", fp)
                 os.remove( fp )
 
 if __name__ == '__main__':
@@ -209,35 +209,35 @@ if __name__ == '__main__':
         options.get = options.process = options.combine = options.upload = options.deploy = True
 
     now = datetime.now()
-    now_15 = now.replace(minute=(now.minute/15)*15)
+    now_15 = now.replace(minute=(now.minute//15)*15)
 
     filename = os.path.join('data','hn-data-%s.html' % now_15.strftime('%Y-%m-%d-%H-%M'))
     filename_js = filename.replace('.html','.json')
 
     if options.get:
-        print 'Getting HN data'
+        print('Getting HN data')
         get(filename)
 
     if options.process:
-        print 'Processing HN data'
+        print('Processing HN data')
         process(filename, filename_js)
 
     if options.combine:
-        print 'Generating a data file'
+        print('Generating a data file')
         combine(now_15)
 
     if options.upload:
-        print 'Uploading to S3'
+        print('Uploading to S3')
         upload(now_15)
 
     if options.deploy:
-        print 'Deploying to S3'
+        print('Deploying to S3')
         deploy(dirs = ['.','js','css','img'], exts = ['html', 'js', 'css', 'png', 'json'])
 
     if options.cleans3:
-        print 'Cleaning S3'
+        print('Cleaning S3')
         clean_s3(now_15)
 
     if options.cleanlocal:
-        print 'Cleaning Local'
+        print('Cleaning Local')
         clean_local(now_15)
