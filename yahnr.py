@@ -43,7 +43,7 @@ def get(filename):
 # Extract info from the HTML
 def process(infile, outfile):
     f = open(infile,'r')
-    soup = BeautifulSoup(f.read())
+    soup = BeautifulSoup(f.read(), "html.parser")
     summary = []
 
     now = time.time()
