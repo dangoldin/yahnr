@@ -1,0 +1,15 @@
+{
+  "name": "yahnr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "test": "node --test 'test/*.test.js'",
+    "check": "npm test && env -u CLOUDFLARE_API_TOKEN wrangler deploy --dry-run --outdir .wrangler/dry-run",
+    "login": "env -u CLOUDFLARE_API_TOKEN wrangler login",
+    "deploy": "env -u CLOUDFLARE_API_TOKEN wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.162.0"
+  }
+}

@@ -37,3 +37,6 @@ nosetests.xml
 *~
 config.py
 data/
+node_modules/
+.wrangler/
+.dev.vars*
