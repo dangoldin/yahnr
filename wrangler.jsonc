@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "yahnr",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+
+  // Static site. Requests that match no file go to the Worker (/data/*.json).
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+
+  // State: "now" (last 24 hours) and "day:YYYY-MM-DD" (daily copies).
+  // No id: wrangler creates the namespace on the first deploy.
+  "kv_namespaces": [{ "binding": "YAHNR" }],
+
+  // Read the HN front page every 15 minutes.
+  "triggers": { "crons": ["*/15 * * * *"] },
+
+  // Cloudflare makes and owns the DNS record for this name.
+  "routes": [{ "pattern": "yahnr.dangoldin.com", "custom_domain": true }],
+
+  "observability": { "enabled": true }
+}
