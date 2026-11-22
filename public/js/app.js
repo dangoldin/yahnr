@@ -78,7 +78,8 @@ $(document).ready(function(){
       $('#data-table').append(output);
     });
   })
-  .error(function(){
-    $('body .span12:first').html('Could not load data at ' + filename);
+  .fail(function(){
+    // text(), not html(): filename comes from the ?date= query string.
+    $('body .span12').first().text('Could not load data at ' + filename);
   });
 });

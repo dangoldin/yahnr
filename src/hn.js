@@ -71,3 +71,9 @@ export function dataKey(pathname) {
   const m = pathname.match(/^\/data\/hn-data-(\d{4}-\d{2}-\d{2})\.json$/);
   return m ? `day:${m[1]}` : null;
 }
+
+// Seconds a /data response may be cached. "now" and today's copy change on
+// every cron run; a past day never changes.
+export function maxAge(key, nowSeconds) {
+  return key === "now" || key === `day:${utcDay(nowSeconds)}` ? 300 : 86400;
+}

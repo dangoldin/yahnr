@@ -1,7 +1,7 @@
 // yahnr on Cloudflare Workers.
 // - scheduled (every 15 minutes): read the HN front page, merge it into KV.
 // - fetch: serve /data/*.json from KV; everything else comes from ./public.
-import { FRONT_PAGE_SIZE, dataKey, merge, toRow, utcDay } from "./hn.js";
+import { FRONT_PAGE_SIZE, dataKey, maxAge, merge, toRow, utcDay } from "./hn.js";
 
 const HN_API = "https://hacker-news.firebaseio.com/v0";
 
@@ -35,19 +35,26 @@ export default {
     console.log(JSON.stringify({ event: "refresh", ...result }));
   },
 
-  async fetch(request, env) {
-    const key = dataKey(new URL(request.url).pathname);
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    const key = dataKey(url.pathname);
     if (key === null) return env.ASSETS.fetch(request);
+
+    // Edge cache, keyed on the path only so a query string cannot skip it.
+    // A hit costs no KV read.
+    const cacheKey = new Request(url.origin + url.pathname);
+    const hit = await caches.default.match(cacheKey);
+    if (hit) return hit;
 
     const body = await env.YAHNR.get(key);
     if (body === null) return new Response("Not found", { status: 404 });
-    // now.json changes every 15 minutes; a past day never changes.
-    const maxAge = key === "now" ? 300 : 86400;
-    return new Response(body, {
+    const response = new Response(body, {
       headers: {
         "content-type": "application/json; charset=utf-8",
-        "cache-control": `public, max-age=${maxAge}`,
+        "cache-control": `public, max-age=${maxAge(key, Date.now() / 1000)}`,
       },
     });
+    ctx.waitUntil(caches.default.put(cacheKey, response.clone()));
+    return response;
   },
 };

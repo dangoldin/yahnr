@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { dataKey, merge, toRow, utcDay, WINDOW_SECONDS } from "../src/hn.js";
+import { dataKey, maxAge, merge, toRow, utcDay, WINDOW_SECONDS } from "../src/hn.js";
 
 const story = {
   by: "dhouston",
@@ -73,4 +73,11 @@ test("utcDay and dataKey", () => {
   assert.equal(dataKey("/data/hn-data-2026-11-21.json"), "day:2026-11-21");
   assert.equal(dataKey("/data/../secret"), null);
   assert.equal(dataKey("/index.html"), null);
+});
+
+test("maxAge: now and today change often, a past day never changes", () => {
+  const now = 1763683200; // 2025-11-21
+  assert.equal(maxAge("now", now), 300);
+  assert.equal(maxAge("day:2025-11-21", now), 300);
+  assert.equal(maxAge("day:2025-11-20", now), 86400);
 });
